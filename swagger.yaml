@@ -1,0 +1,25 @@
+openapi: 3.0.0
+info:
+  title: Tshirt store API
+  description: LCO - a course to create API for ecomm store
+  version: 1.0.1
+  contact:
+    email: saadatbadgujar@gmail.com
+    url: "https://github.com/Saadat-B"
+
+servers:
+  - url: http://localhost:4000/api/v1
+    description: localhost version of our app
+  - url: https://localhost:4000/api/v1
+    description: this is just a dummy api url, it doesn't work
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: token
+
+    BearerAuth:
+      type: http
+      scheme: bearer
