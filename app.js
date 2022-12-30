@@ -20,7 +20,12 @@ app.use(express.urlencoded({ extended: true }));
 
 // cookies and file middleware
 app.use(cookieParser());
-app.use(fileUpload());
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: "/tmp/",
+  })
+);
 
 // import all routes here
 
