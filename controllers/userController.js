@@ -7,23 +7,29 @@ const fileUpload = require("express-fileupload");
 const cloudinary = require("cloudinary");
 
 exports.signup = BigPromise(async (req, res, next) => {
+  if (!req.files) {
+    return next(new CustomError("photo is required for signup", 400));
+  }
+
+  const { name, email, password } = req.body;
+
+  if (!email || !name || !password) {
+    return next(
+      new CustomError("Name, email and password are required", "400")
+    );
+  }
+
   let result;
 
   if (req.files) {
     let file = req.files.photo;
-    result = await cloudinary.v2.uploader.upload(file, {
+    result = await cloudinary.v2.uploader.upload(file.tempFilePath, {
       folder: "users",
       width: 150,
       crop: "scale",
     });
   }
 
-  const { name, email, password } = req.body;
-  if (!email || !name || !password) {
-    return next(
-      new CustomError("Name, email and password are required", "400")
-    );
-  }
   const user = await User.create({
     name,
     email,
