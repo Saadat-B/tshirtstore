@@ -42,3 +42,32 @@ exports.signup = BigPromise(async (req, res, next) => {
 
   cookieToken(user, res);
 });
+
+exports.login = BigPromise(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  // check for presence of email and password
+  if (!email || !password) {
+    return next(new CustomError("please provide email and password", 400));
+  }
+
+  // get user from DB and also the password as it was selected as false in the user model, which means it will not be returned unless you specify it
+
+  const user = await User.findOne({ email }).select("+password");
+
+  if (!user) {
+    return next(
+      new CustomError("Email or password does not match or exist", 400)
+    );
+  }
+
+  const isPasswordCorrect = await user.isValidatedPassword(password);
+
+  if (!isPasswordCorrect) {
+    return next(
+      new CustomError("Email or password does not match or exist", 400)
+    );
+  }
+
+  cookieToken(user, res);
+});
