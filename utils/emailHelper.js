@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 
-const mailHelper = async (options) => {
+const mailHelper = async (option) => {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
