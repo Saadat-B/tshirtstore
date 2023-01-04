@@ -11,13 +11,12 @@ const mailHelper = async (option) => {
   });
 
   const message = {
-    from: "support@tshirtstore.com", // sender address
-    to: option.email, // list of receivers
-    subject: option.subject, // Subject line
-    text: option.message, // plain text body
+    from: "support@tshirtstore.com",
+    to: option.email,
+    subject: option.subject,
+    text: option.message,
   };
 
-  // send mail with defined transport object
   await transporter.sendMail(message);
 };
 
