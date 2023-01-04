@@ -224,3 +224,13 @@ exports.updateUserDetails = BigPromise(async (req, res, next) => {
     success: true,
   });
 });
+
+exports.adminAllUser = BigPromise(async (req, res, next) => {
+  // users will be an array
+  const users = await User.find();
+
+  res.status(200).json({
+    success: true,
+    users,
+  });
+});
