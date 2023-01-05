@@ -256,3 +256,39 @@ exports.admingetOneUser = BigPromise(async (req, res, next) => {
     user,
   });
 });
+
+exports.adminUpdateOneUserDetails = BigPromise(async (req, res, next) => {
+  const newData = {
+    name: req.body.name,
+    email: req.body.email,
+    role: req.body.role,
+  };
+
+  const user = await User.findByIdAndUpdate(req.params.id, newData, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  });
+
+  res.status(200).json({
+    success: true,
+  });
+});
+
+exports.adminDeleteOneUser = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    return next(new CustomError("No such user found", 401));
+  }
+
+  const imageId = user.photo.id;
+
+  await cloudinary.v2.uploader.destroy(imageId);
+
+  await user.remove();
+
+  res.status(200).json({
+    success: true,
+  });
+});
