@@ -1,5 +1,7 @@
 // base - Product.find()
 
+const { json } = require("express");
+
 // bigQ - search=coder&page+2&category=shortsleeves&rating[gte]=4&price[lte]=999&price[gte]=199
 
 class WhereClause {
@@ -20,6 +22,26 @@ class WhereClause {
 
     this.base = this.base.find({ ...searchword });
     return this;
+  }
+
+  filter() {
+    const copyQ = { ...this.bigQ };
+
+    delete copyQ["search"];
+    delete copyQ["limit"];
+    delete copyQ["page"];
+
+    // convert bigQ into a string => copyQ
+
+    let stringOfCopyQ = JSON.stringify(copyQ);
+
+    stringOfCopyQ = stringOfCopyQ.replace(
+      /\b(gte|lte|gt|lt)\b/g,
+      (m) => `$${m}`
+    );
+    const jsonOfCopyQ = JSON.parse(stringOfCopyQ);
+
+    this.base = this.base.find(jsonOfCopyQ);
   }
 
   pager(resultperPage) {
