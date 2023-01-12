@@ -78,6 +78,8 @@ exports.getOneProduct = BigPromise(async (req, res, next) => {
   });
 });
 
+// admin only controllers
+
 exports.adminGetAllProduct = BigPromise(async (req, res, next) => {
   const products = await Product.find();
 
@@ -129,5 +131,23 @@ exports.adminUpdateOneProduct = BigPromise(async (req, res, next) => {
   res.status(200).json({
     success: true,
     product,
+  });
+});
+exports.adminDeleteOneProduct = BigPromise(async (req, res, next) => {
+  const product = await Product.findById(req.params.id);
+
+  if (!product) {
+    return next(new CustomError("No product found with this id", 401));
+  }
+
+  for (let index = 0; index < product.photos.length; index++) {
+    const res = await cloudinary.v2.uploader.destroy(product.photos[index].id);
+  }
+
+  await product.remove();
+
+  res.status(200).json({
+    success: true,
+    message: "Product was deleted!",
   });
 });
