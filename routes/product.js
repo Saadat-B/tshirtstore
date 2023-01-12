@@ -4,6 +4,7 @@ const {
   getAllProduct,
   adminGetAllProduct,
   getOneProduct,
+  adminUpdateOneProduct,
 } = require("../controllers/productController");
 const router = express.Router();
 
@@ -21,5 +22,9 @@ router
 router
   .route("/admin/products")
   .get(isLoggedIn, customRole("admin"), adminGetAllProduct);
+
+router
+  .route("/admin/product/:id")
+  .post(isLoggedIn, customRole("admin"), adminUpdateOneProduct);
 
 module.exports = router;
