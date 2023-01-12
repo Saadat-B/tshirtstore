@@ -3,6 +3,7 @@ const {
   addProduct,
   getAllProduct,
   adminGetAllProduct,
+  getOneProduct,
 } = require("../controllers/productController");
 const router = express.Router();
 
@@ -10,6 +11,7 @@ const { isLoggedIn, customRole } = require("../middlewares/user");
 
 // user routes
 router.route("/products").get(getAllProduct);
+router.route("/products/:id").get(getOneProduct);
 
 // admin routes
 router
