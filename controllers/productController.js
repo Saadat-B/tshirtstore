@@ -77,6 +77,46 @@ exports.getOneProduct = BigPromise(async (req, res, next) => {
     product,
   });
 });
+exports.addReview = BigPromise(async (req, res, next) => {
+  const { rating, comment, productId } = req.body;
+  const review = {
+    user: req.user._id,
+    name: req.user.name,
+    rating: Number(rating),
+    comment,
+  };
+
+  const product = await Product.findById(productId);
+
+  const AlreadyReview = product.reviews.find(
+    (rev) => rev.user.toString() === req.user._id.toString()
+  );
+
+  if (AlreadyReview) {
+    product.reviews.forEach((review) => {
+      if (review.user.toString() === req.user._id.toString()) {
+        review.comment = comment;
+        review.rating = rating;
+      }
+    });
+  } else {
+    product.reviews.push(review);
+    product.numberOfReviews = product.reviews.length;
+  }
+  // adjust ratings
+
+  product.ratings =
+    product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+    product.reviews.length;
+
+  // save
+
+  await product.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    success: true,
+  });
+});
 
 // admin only controllers
 
@@ -89,7 +129,7 @@ exports.adminGetAllProduct = BigPromise(async (req, res, next) => {
   });
 });
 exports.adminUpdateOneProduct = BigPromise(async (req, res, next) => {
-  const product = await Product.findById(req.params.id);
+  let product = await Product.findById(req.params.id);
 
   if (!product) {
     return next(new CustomError("No product found with this id", 401));
