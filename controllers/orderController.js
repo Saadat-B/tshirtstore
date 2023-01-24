@@ -1,6 +1,6 @@
 const Order = require("../models/order");
 const Product = require("../models/product");
-
+custom;
 const BigPromise = require("../middlewares/bigPromise");
 
 exports.createOrder = BigPromise(async (req, res, next) => {
@@ -21,6 +21,19 @@ exports.createOrder = BigPromise(async (req, res, next) => {
     totalAmount,
     user: req.user._id,
   });
+
+  res.status(200).json({
+    success: true,
+    order,
+  });
+});
+
+exports.getOneOrder = BigPromise(async (req, res, next) => {
+  const order = Order.findById(req.params.id).populate("user", "name email");
+
+  if (!order) {
+    return next(new CustomerError("please check order id", 401));
+  }
 
   res.status(200).json({
     success: true,
