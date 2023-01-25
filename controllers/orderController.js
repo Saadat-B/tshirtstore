@@ -2,6 +2,7 @@ const Order = require("../models/order");
 const Product = require("../models/product");
 custom;
 const BigPromise = require("../middlewares/bigPromise");
+const CustomError = require("../utils/customError");
 
 exports.createOrder = BigPromise(async (req, res, next) => {
   const {
@@ -29,7 +30,10 @@ exports.createOrder = BigPromise(async (req, res, next) => {
 });
 
 exports.getOneOrder = BigPromise(async (req, res, next) => {
-  const order = Order.findById(req.params.id).populate("user", "name email");
+  const order = await Order.findById(req.params.id).populate(
+    "user",
+    "name email"
+  );
 
   if (!order) {
     return next(new CustomerError("please check order id", 401));
@@ -42,7 +46,7 @@ exports.getOneOrder = BigPromise(async (req, res, next) => {
 });
 
 exports.getLoggedInOrders = BigPromise(async (req, res, next) => {
-  const order = Order.findById({ user: req.user._id });
+  const order = await Order.findById({ user: req.user._id });
 
   if (!order) {
     return next(new CustomerError("please check order id", 401));
@@ -57,10 +61,38 @@ exports.getLoggedInOrders = BigPromise(async (req, res, next) => {
 //admin routes
 
 exports.admingetAllOrders = BigPromise(async (req, res, next) => {
-  const order = Order.findById();
+  const order = await Order.findById();
 
   res.status(200).json({
     success: true,
     orders,
   });
 });
+
+exports.adminUpdateOrder = BigPromise(async (req, res, next) => {
+  const order = await Order.findById(req.params.id);
+
+  if (order.orderStatus === "Delivered") {
+    return next(new CustomError("Order is already marked for delivered", 401));
+  }
+  order.orderStatus = req.body.orderStatus;
+
+  order.orderItems.forEach(async (prod) => {
+    await updateProductStock(prod.product, prod.quantity);
+  });
+
+  await order.save();
+
+  res.status(200).json({
+    success: true,
+    orders,
+  });
+});
+
+async function updateProductStock(productId, quantity) {
+  const product = await Product.findById(productId);
+
+  product.stock = product.stock - quantity;
+
+  await product.save({ validateBeforeSave });
+}
