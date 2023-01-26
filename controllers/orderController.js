@@ -61,7 +61,7 @@ exports.getLoggedInOrders = BigPromise(async (req, res, next) => {
 //admin routes
 
 exports.admingetAllOrders = BigPromise(async (req, res, next) => {
-  const order = await Order.findById();
+  const orders = await Order.findById();
 
   res.status(200).json({
     success: true,
@@ -85,7 +85,17 @@ exports.adminUpdateOrder = BigPromise(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    orders,
+    order,
+  });
+});
+
+exports.adminDeleteOrder = BigPromise(async (req, res, next) => {
+  const order = await Order.findById(req.params.id);
+
+  await order.remove();
+
+  res.status(200).json({
+    success: true,
   });
 });
 
